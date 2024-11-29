@@ -1,0 +1,129 @@
+
+test.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .tohost:
+
+80000000 <tohost>:
+	...
+
+80000040 <fromhost>:
+	...
+
+Disassembly of section .text:
+
+80001000 <main>:
+80001000:	00000297          	auipc	t0,0x0
+80001004:	08c28293          	add	t0,t0,140 # 8000108c <trapVector>
+80001008:	30529073          	csrw	mtvec,t0
+8000100c:	30002573          	csrr	a0,mstatus
+80001010:	00000513          	li	a0,0
+80001014:	038000ef          	jal	8000104c <switchMode>
+80001018:	10002573          	csrr	a0,sstatus
+8000101c:	00000073          	ecall
+80001020:	30002573          	csrr	a0,mstatus
+80001024:	00100513          	li	a0,1
+80001028:	024000ef          	jal	8000104c <switchMode>
+8000102c:	00000073          	ecall
+80001030:	00000073          	ecall
+80001034:	30002573          	csrr	a0,mstatus
+
+80001038 <end_main>:
+80001038:	004000ef          	jal	8000103c <writeToHost>
+
+8000103c <writeToHost>:
+8000103c:	00100193          	li	gp,1
+80001040:	ffffff17          	auipc	t5,0xfffff
+80001044:	fc3f2023          	sw	gp,-64(t5) # 80000000 <tohost>
+
+80001048 <end_writeToHost>:
+80001048:	ff5ff0ef          	jal	8000103c <writeToHost>
+
+8000104c <switchMode>:
+8000104c:	00050293          	mv	t0,a0
+80001050:	30002373          	csrr	t1,mstatus
+80001054:	00002fb7          	lui	t6,0x2
+80001058:	800f8f93          	add	t6,t6,-2048 # 1800 <tohost-0x7fffe800>
+8000105c:	ffffcf93          	not	t6,t6
+80001060:	01f37333          	and	t1,t1,t6
+
+80001064 <if1>:
+80001064:	00029863          	bnez	t0,80001074 <else1>
+80001068:	00001fb7          	lui	t6,0x1
+8000106c:	800f8f93          	add	t6,t6,-2048 # 800 <tohost-0x7ffff800>
+80001070:	00c0006f          	j	8000107c <end_if1>
+
+80001074 <else1>:
+80001074:	00000f93          	li	t6,0
+80001078:	0040006f          	j	8000107c <end_if1>
+
+8000107c <end_if1>:
+8000107c:	01f36333          	or	t1,t1,t6
+80001080:	30031073          	csrw	mstatus,t1
+80001084:	34109073          	csrw	mepc,ra
+
+80001088 <end_switchMode>:
+80001088:	30200073          	mret
+
+8000108c <trapVector>:
+8000108c:	34202473          	csrr	s0,mcause
+80001090:	00900493          	li	s1,9
+80001094:	00800913          	li	s2,8
+
+80001098 <if2>:
+80001098:	00941863          	bne	s0,s1,800010a8 <elseif2>
+8000109c:	000024b7          	lui	s1,0x2
+800010a0:	80048493          	add	s1,s1,-2048 # 1800 <tohost-0x7fffe800>
+800010a4:	0140006f          	j	800010b8 <end_if2>
+
+800010a8 <elseif2>:
+800010a8:	01241863          	bne	s0,s2,800010b8 <end_if2>
+800010ac:	000014b7          	lui	s1,0x1
+800010b0:	80048493          	add	s1,s1,-2048 # 800 <tohost-0x7ffff800>
+800010b4:	0040006f          	j	800010b8 <end_if2>
+
+800010b8 <end_if2>:
+800010b8:	30002473          	csrr	s0,mstatus
+800010bc:	00946433          	or	s0,s0,s1
+800010c0:	30041073          	csrw	mstatus,s0
+800010c4:	00408093          	add	ra,ra,4
+800010c8:	34109073          	csrw	mepc,ra
+
+800010cc <end_trapVector>:
+800010cc:	30200073          	mret
+
+Disassembly of section .data:
+
+80002000 <base>:
+80002000:	cafebeef          	jal	t4,7ffedcae <tohost-0x12352>
+	...
+
+Disassembly of section .riscv.attributes:
+
+00000000 <.riscv.attributes>:
+   0:	3a41                	.2byte	0x3a41
+   2:	0000                	.2byte	0x0
+   4:	7200                	.2byte	0x7200
+   6:	7369                	.2byte	0x7369
+   8:	01007663          	bgeu	zero,a6,14 <tohost-0x7fffffec>
+   c:	0030                	.2byte	0x30
+   e:	0000                	.2byte	0x0
+  10:	7205                	.2byte	0x7205
+  12:	3376                	.2byte	0x3376
+  14:	6932                	.2byte	0x6932
+  16:	7032                	.2byte	0x7032
+  18:	5f30                	.2byte	0x5f30
+  1a:	326d                	.2byte	0x326d
+  1c:	3070                	.2byte	0x3070
+  1e:	615f 7032 5f30      	.byte	0x5f, 0x61, 0x32, 0x70, 0x30, 0x5f
+  24:	3266                	.2byte	0x3266
+  26:	3070                	.2byte	0x3070
+  28:	645f 7032 5f30      	.byte	0x5f, 0x64, 0x32, 0x70, 0x30, 0x5f
+  2e:	6d7a                	.2byte	0x6d7a
+  30:	756d                	.2byte	0x756d
+  32:	316c                	.2byte	0x316c
+  34:	3070                	.2byte	0x3070
+  36:	0800                	.2byte	0x800
+  38:	0a01                	.2byte	0xa01
+  3a:	0b              	Address 0x3a is out of bounds.
+
